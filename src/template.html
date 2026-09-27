@@ -1,0 +1,844 @@
+<title>Second Language</title>
+<meta name="description" content="Every answer in the New York Times crossword, 1942 to 2025. Fifty-six words the puzzle retired, a hundred and sixty-one it invented, and a letter distribution that never moved.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  /* --- surfaces: newsprint, pressed ink ----------------------------- */
+  --paper:#F7F3E9; --card:#FFFDF8; --sunk:#EFE8D9; --rule:#DDD3BF;
+  --ink:#15120C; --ink2:#554C3B; --ink3:#8A7F6A;
+  --cell:#15120C;                     /* a filled crossword square      */
+  /* --- the two vocabularies (validated pair, both AA on paper) ------ */
+  --old:#9A5B18; --new:#1F5FA6;
+  --oldsoft:#F0DFC6; --newsoft:#D6E4F2;
+  --flag:#B3261E;
+  --shadow:rgba(21,18,12,.13);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#13110C; --card:#1E1B14; --sunk:#191610; --rule:#38321F;
+  --ink:#F6F1E3; --ink2:#C8BFA8; --ink3:#958B74;
+  --cell:#F6F1E3;
+  --old:#E0A05A; --new:#74AEE4;
+  --oldsoft:#3B2C16; --newsoft:#17304A;
+  --flag:#F2836F;
+  --shadow:rgba(0,0,0,.55);
+}}
+:root[data-theme="dark"]{
+  --paper:#13110C; --card:#1E1B14; --sunk:#191610; --rule:#38321F;
+  --ink:#F6F1E3; --ink2:#C8BFA8; --ink3:#958B74;
+  --cell:#F6F1E3;
+  --old:#E0A05A; --new:#74AEE4;
+  --oldsoft:#3B2C16; --newsoft:#17304A;
+  --flag:#F2836F;
+  --shadow:rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:400 17px/1.62 "IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;margin:0;line-height:1.1;
+  text-wrap:balance;font-variation-settings:"opsz" 96}
+p{margin:0}
+a{color:var(--new);text-underline-offset:3px}
+:focus-visible{outline:2.5px solid var(--new);outline-offset:3px;border-radius:3px}
+.num,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:clamp(16px,4vw,44px)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+svg{display:block;max-width:100%}
+/* An 84-year axis scaled to a phone puts four pixels on a year and makes the
+   labels unreadable. Below about 700px the chart keeps its size and scrolls
+   inside its own figure, so the page itself never scrolls sideways. */
+.scrollx{overflow-x:auto;overscroll-behavior-x:contain}
+.scrollx>svg{min-width:660px}
+
+/* ---------- the motif: a row of crossword squares ------------------- */
+.strip{display:flex;gap:3px;margin:0;flex-wrap:wrap}
+.sq{width:26px;height:26px;border:1.5px solid var(--cell);display:grid;place-items:center;
+  font:600 14px/1 "IBM Plex Mono",monospace;color:var(--ink);background:var(--card);
+  position:relative;border-radius:1px}
+.sq.blk{background:var(--cell);border-color:var(--cell)}
+.sq.no::before{content:attr(data-n);position:absolute;top:1px;left:2px;
+  font:500 7.5px/1 "IBM Plex Mono",monospace;color:var(--ink3)}
+.strip.sm .sq{width:19px;height:19px;font-size:11px;border-width:1.25px}
+.strip.sm .sq.no::before{font-size:6px}
+
+/* ---------- hero ---------------------------------------------------- */
+.hero{padding:clamp(38px,7vh,80px) 0 6px}
+.eyebrow{font:500 12px/1.5 "IBM Plex Mono",monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink3)}
+h1{font-size:clamp(54px,11.5vw,138px);font-weight:700;letter-spacing:-.028em;
+  margin:.16em 0 .2em;font-variation-settings:"opsz" 144}
+.dek{font-size:clamp(18px,2.1vw,22.5px);line-height:1.5;max-width:32em;color:var(--ink2)}
+.dek b{color:var(--ink);font-weight:600}
+.facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.fact{background:var(--card);border:1px solid var(--rule);border-radius:9px;
+  padding:11px 15px;box-shadow:0 1px 2px var(--shadow)}
+.fact b{display:block;font:600 27px/1 "IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;color:var(--ink)}
+.fact.o b{color:var(--old)} .fact.n b{color:var(--new)}
+.fact span{display:block;font-size:13px;line-height:1.35;color:var(--ink2);margin-top:5px;max-width:15.5em}
+
+/* ---------- sections ------------------------------------------------ */
+section{padding:clamp(34px,6vh,66px) 0 0}
+.shead{display:flex;gap:16px;align-items:baseline;margin-bottom:12px}
+.sno{font:500 13px/1 "IBM Plex Mono",monospace;color:var(--ink3);padding-top:.5em;flex:none}
+.shead h2{font-size:clamp(28px,4vw,44px);letter-spacing:-.015em}
+.prose{max-width:36em;display:grid;gap:14px;color:var(--ink2);font-size:17px}
+.prose b{color:var(--ink);font-weight:600}
+.prose .lede{font-size:19px;color:var(--ink)}
+.prose em{font-style:italic}
+
+/* ---------- figures ------------------------------------------------- */
+figure{margin:26px 0 0;background:var(--card);border:1px solid var(--rule);
+  border-radius:12px;box-shadow:0 1px 3px var(--shadow);overflow:hidden}
+figcaption{padding:13px 18px 15px;border-top:1px solid var(--rule);background:var(--sunk);
+  font-size:14px;line-height:1.5;color:var(--ink2)}
+figcaption b{color:var(--ink);font-weight:600}
+.figbody{padding:18px}
+.figtitle{font:600 15px/1.3 "IBM Plex Sans",sans-serif;color:var(--ink);margin-bottom:3px}
+.figsub{font-size:13.5px;color:var(--ink3);margin-bottom:16px}
+
+/* ---------- controls ------------------------------------------------ */
+.controls{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;
+  padding:13px 18px;border-bottom:1px solid var(--rule);background:var(--sunk)}
+.cgroup{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.clabel{font:500 11px/1 "IBM Plex Mono",monospace;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink3)}
+button.seg{font:500 13.5px/1 "IBM Plex Sans",sans-serif;color:var(--ink2);
+  background:var(--card);border:1px solid var(--rule);border-radius:7px;
+  padding:8px 12px;cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+button.seg:hover{border-color:var(--ink3);color:var(--ink)}
+button.seg[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tbtn{font:500 12.5px/1 "IBM Plex Sans",sans-serif;color:var(--ink3);background:none;
+  border:1px solid var(--rule);border-radius:6px;padding:6px 10px;cursor:pointer}
+.tbtn:hover{color:var(--ink);border-color:var(--ink3)}
+
+/* ---------- word cards ---------------------------------------------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:10px}
+.wc{border:1px solid var(--rule);border-radius:10px;padding:11px 12px 10px;background:var(--card)}
+.wc.o{border-left:3px solid var(--old)} .wc.n{border-left:3px solid var(--new)}
+.wc .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.wc .meta{font:500 11px/1.45 "IBM Plex Mono",monospace;color:var(--ink3);text-align:right;flex:none}
+.wc .meta b{display:block;font-size:15px;color:var(--ink)}
+.wc .q{font-size:13.2px;line-height:1.45;color:var(--ink2);margin-top:9px;font-style:italic}
+.wc .q span{font-style:normal;color:var(--ink3);font-family:"IBM Plex Mono",monospace;font-size:11px}
+.wc .sp{margin-top:8px}
+.moreline{display:flex;justify-content:center;margin-top:14px}
+
+/* ---------- lookup --------------------------------------------------- */
+.look{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:16px 18px;
+  border-bottom:1px solid var(--rule);background:var(--sunk)}
+#q{font:600 21px/1 "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;
+  padding:11px 14px;border:1.5px solid var(--rule);border-radius:8px;background:var(--card);
+  color:var(--ink);width:min(300px,100%)}
+#q:focus{border-color:var(--new);outline:none}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:500 12.5px/1 "IBM Plex Mono",monospace;letter-spacing:.08em;color:var(--ink2);
+  background:var(--card);border:1px solid var(--rule);border-radius:20px;padding:7px 11px;cursor:pointer}
+.chip:hover{border-color:var(--ink3);color:var(--ink)}
+.lstat{display:flex;flex-wrap:wrap;gap:8px 26px;padding:0 0 4px}
+.lstat div{font-size:13px;color:var(--ink3)}
+.lstat b{display:block;font:600 21px/1.2 "IBM Plex Mono",monospace;color:var(--ink)}
+.miss{color:var(--flag);font-size:14.5px}
+
+/* ---------- tables and legends --------------------------------------- */
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;
+  padding:12px 18px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--ink2)}
+.lg{display:inline-flex;gap:7px;align-items:center;white-space:nowrap}
+.sw{width:13px;height:13px;border-radius:3px;flex:none}
+table.rt{width:100%;border-collapse:collapse;font-size:14px}
+table.rt th,table.rt td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--rule)}
+table.rt th:first-child,table.rt td:first-child{text-align:left}
+table.rt th{font:500 11px/1.3 "IBM Plex Mono",monospace;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink3)}
+table.rt td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+/* ---------- method --------------------------------------------------- */
+.meth{margin-top:26px;border-top:1px solid var(--rule);padding-top:24px}
+.meth h3{font-size:19px;margin-bottom:8px}
+.meth .prose{max-width:38em}
+details.src{margin-top:16px;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+details.src summary{cursor:pointer;padding:12px 16px;font:500 14px/1 "IBM Plex Sans",sans-serif;color:var(--ink2)}
+details.src .in{padding:0 16px 16px;font-size:14px;line-height:1.6;color:var(--ink2)}
+footer{padding:44px 0 60px;color:var(--ink3);font-size:13.5px;line-height:1.7}
+footer a{color:var(--ink2)}
+@media (max-width:560px){ .lstat{gap:8px 18px} .sq{width:22px;height:22px;font-size:12px} }
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">The New York Times crossword &middot; 1942&ndash;2025 &middot; 2,457,203 answers</p>
+  <div class="strip" id="motif" aria-hidden="true"></div>
+  <h1>Second Language</h1>
+  <p class="dek">The crossword has never been written in English. It is written in whatever
+  words happen to fit &mdash; and for fifty years those were lakes in Finland, Greek wine
+  jugs and the geologist's word for a gravel ridge. Then, in the space of about a year,
+  the Times threw the entire vocabulary out and replaced it with
+  <b>acronyms, brand names and television</b>. The letters did not move at all.</p>
+  <div class="facts">
+    <div class="fact o"><b id="f-ret">56</b><span>words the Times used at least 50 times before 1980 and has not printed once since 1999</span></div>
+    <div class="fact n"><b id="f-inv">161</b><span>words it had never once printed before 1980 and has now used at least 50 times</span></div>
+    <div class="fact"><b>1993 &rarr; 1994</b><span>median year the old list was last seen, and the new list first appeared</span></div>
+    <div class="fact"><b>r = 0.997</b><span>correlation between the letter mix of the Farrar era and the Shortz era</span></div>
+  </div>
+</header>
+
+<section id="swap">
+  <div class="shead"><span class="sno">01</span><h2>The swap</h2></div>
+  <div class="prose">
+    <p class="lede">Two lists, built by the same rule from opposite ends of the record.
+    A word is <b>retired</b> if the Times printed it at least 50 times between 1942 and 1979
+    and has not printed it once since 2000. It is <b>invented</b> if the reverse holds.
+    The twenty years in between are left unjudged, so neither list can be an artefact of
+    where a boundary was drawn.</p>
+    <p>There is no overlap in character. The retired list is a reference shelf: a lake in
+    Finland (<span class="mono">ENARE</span>), a Philippine island (<span class="mono">SAMAR</span>),
+    an Austrian tributary of the Danube (<span class="mono">ENNS</span>), a ten-stringed
+    Hebrew instrument (<span class="mono">ASOR</span>), the geological word for a gravel
+    ridge (<span class="mono">OSAR</span>). The invented list is a channel guide and a form
+    you have to fill in: <span class="mono">SNL</span>, <span class="mono">SSN</span>,
+    <span class="mono">EDU</span>, <span class="mono">TSA</span>, <span class="mono">LSAT</span>,
+    <span class="mono">IMAC</span>, <span class="mono">IKEA</span>.</p>
+    <p>Neither list is English. Each was a private vocabulary that a solver had to acquire
+    separately from the language, and the clue attached to each word says so &mdash; the older
+    ones are definitions, because you were expected not to know.</p>
+  </div>
+  <figure>
+    <div class="controls">
+      <div class="cgroup"><span class="clabel">Show</span>
+        <button class="seg" data-sw="both" aria-pressed="true">Both</button>
+        <button class="seg" data-sw="ret" aria-pressed="false">Retired</button>
+        <button class="seg" data-sw="inv" aria-pressed="false">Invented</button>
+      </div>
+      <div class="cgroup"><span class="clabel">Order</span>
+        <button class="seg" data-ord="n" aria-pressed="true">By uses</button>
+        <button class="seg" data-ord="y" aria-pressed="false">By year</button>
+        <button class="seg" data-ord="a" aria-pressed="false">A&ndash;Z</button>
+      </div>
+    </div>
+    <div class="figbody">
+      <div class="figtitle" id="sw-title">The retired and the invented</div>
+      <div class="figsub" id="sw-sub"></div>
+      <div class="cards" id="sw-cards"></div>
+      <div class="moreline"><button class="tbtn" id="sw-more"></button></div>
+    </div>
+    <div class="legend">
+      <span class="lg"><span class="sw" style="background:var(--old)"></span>retired &mdash; the bar chart under each word is its uses per year, 1942 to 2025</span>
+      <span class="lg"><span class="sw" style="background:var(--new)"></span>invented</span>
+    </div>
+  </figure>
+</section>
+
+<section id="hinge">
+  <div class="shead"><span class="sno">02</span><h2>One year</h2></div>
+  <div class="prose">
+    <p class="lede">A vocabulary that was simply going out of fashion would fade: the words
+    would drop away one at a time over decades. That is not what happened.</p>
+    <p>Eugene T. Maleska edited the Times crossword from 1977 until his death in August 1993.
+    Will Shortz's first puzzle ran on <b>21 November 1993</b>. Of the 56 retired words, the
+    median was last printed in <b>1993</b>. Of the 161 invented words, the median first
+    appeared in <b>1994</b>. Every one of the 56 was gone by 1999.</p>
+    <p>Fourteen of them &mdash; a quarter of the list &mdash; have their last appearance in
+    1993 itself, the year the editor's chair changed hands.</p>
+  </div>
+  <figure>
+    <div class="figbody">
+      <div class="figtitle">When each word was last seen, and when each was first seen</div>
+      <div class="figsub">One block per word. Above the line, the year an invented word
+      entered the puzzle; below, the year a retired word left it. The two windows put a floor
+      of 1980 under both series by construction &mdash; what they do not determine is where
+      inside the following twenty years each word lands.</div>
+      <div class="scrollx" id="c-hinge"></div>
+    </div>
+    <figcaption>The four editors are marked along the axis. Both distributions pile up on the
+    same handover. <b>The old words did not die of old age; they were dropped.</b></figcaption>
+  </figure>
+</section>
+
+<section id="letters">
+  <div class="shead"><span class="sno">03</span><h2>The letters never moved</h2></div>
+  <div class="prose">
+    <p class="lede">Here is the part that makes the swap look less like a change of taste and
+    more like an engineering constraint.</p>
+    <p>A crossword answer has to cross other answers at every letter. That makes some letters
+    cheap and others ruinous, and it pushes the whole vocabulary towards vowels and towards
+    <span class="mono">S</span>, <span class="mono">R</span>, <span class="mono">L</span>,
+    <span class="mono">T</span>, <span class="mono">N</span>. Crossword answers are
+    <b>40.7% to 42.7% vowels</b> &mdash; in every single year since 1942. English words,
+    weighted by how often people actually use them, are <b>37.1%</b>.</p>
+    <p>That gap has never closed. It was 42.1% in Farrar's first year and 40.7% in 2025:
+    eighty-four years inside a two-point band. Compare
+    the letter mix of the Farrar era with the Shortz era &mdash; two vocabularies that share
+    almost none of their distinctive words &mdash; and they correlate at <b>r = 0.997</b>.
+    Compare either with English and it falls to 0.96&ndash;0.97.</p>
+    <p>The puzzle did not get easier or harder. It swapped one source of vowel-heavy
+    short vowel-heavy strings for another. <span class="mono">ANOA</span>, a wild ox, was last
+    printed in 2004; <span class="mono">ACAI</span>, a berry, first appeared in 2010. Three
+    vowels in four letters, either way.</p>
+  </div>
+  <figure>
+    <div class="controls">
+      <div class="cgroup"><span class="clabel">Era</span><span id="era-btns" style="display:flex;gap:7px;flex-wrap:wrap"></span></div>
+    </div>
+    <div class="figbody">
+      <div class="figtitle">Share of all letters in crossword answers, against English</div>
+      <div class="figsub">Bars are the selected era. The tick is English prose, frequency-weighted, words of three letters or more.</div>
+      <div class="scrollx" id="c-letters"></div>
+    </div>
+    <figcaption id="cap-letters"></figcaption>
+  </figure>
+  <figure>
+    <div class="figbody">
+      <div class="figtitle">Vowels as a share of all letters printed, by year</div>
+      <div class="figsub">Every answer in that year's puzzles, weighted by how often it appeared.</div>
+      <div class="scrollx" id="c-vowel"></div>
+    </div>
+    <figcaption>Eighty-four years, four editors, one complete turnover of the distinctive
+    vocabulary &mdash; and a line that never comes closer than <b>3.6 points above English</b>
+    or drifts further than 5.6. The constraint is the grid, not the editor.</figcaption>
+  </figure>
+</section>
+
+<section id="isword">
+  <div class="shead"><span class="sno">04</span><h2>Is it even a word?</h2></div>
+  <div class="prose">
+    <p class="lede">One thing did change, and it is not the one people complain about.</p>
+    <p>Test every answer against <span class="mono">ENABLE</span>, the public-domain word-game
+    lexicon &mdash; 172,823 entries, no proper nouns, no abbreviations, no phrases. From 1942
+    to 1993 the share of Times answers that were ordinary English words sat flat between
+    <b>66% and 68%</b> through three editors. It then fell for seventeen straight years to a
+    floor of <b>53% in 2011</b>, and has recovered only to <b>57%</b>.</p>
+    <p>So the modern puzzle asks for fewer real words than the Maleska puzzle did, not more.
+    What it asks for instead are names, initialisms and spoken fragments
+    (<span class="mono">ATAD</span>, <span class="mono">TADA</span>,
+    <span class="mono">APOP</span>). The complaint that the old puzzle was full of words
+    nobody knew and the new one is full of things that are not words is, on this measure,
+    correct in both directions.</p>
+  </div>
+  <figure>
+    <div class="figbody">
+      <div class="figtitle">Share of answers that are ordinary English words</div>
+      <div class="figsub">Usage-weighted, against the ENABLE lexicon.</div>
+      <div class="scrollx" id="c-enable"></div>
+    </div>
+    <figcaption>Flat from 1942 to 1993, then a thirteen-point fall. <b>The break is in the
+    same place as the vocabulary swap</b> &mdash; but unlike the letter mix, this one never
+    went back.</figcaption>
+  </figure>
+</section>
+
+<section id="lookup">
+  <div class="shead"><span class="sno">05</span><h2>Look up any answer</h2></div>
+  <div class="prose">
+    <p class="lede">The 20,000 most-used answers in the Times, each with its own
+    eighty-four-year life. Type one in.</p>
+  </div>
+  <figure>
+    <div class="look">
+      <input id="q" type="text" spellcheck="false" autocomplete="off" maxlength="22"
+             placeholder="ESNE" aria-label="Crossword answer to look up">
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="figbody">
+      <div id="look-out"></div>
+    </div>
+    <figcaption>Covers <b id="cov">76.5%</b> of every answer the Times has printed since 1942
+    &mdash; every answer used at least <b id="minu">21</b> times. Rarer answers are in the
+    corpus but not in this page.</figcaption>
+  </figure>
+</section>
+
+<section id="method">
+  <div class="shead"><span class="sno">06</span><h2>How this was made</h2></div>
+  <div class="meth">
+    <div class="prose">
+      <p>Every figure comes from the <b>xd corpus</b>, Saul Pwanson's archive of crossword
+      puzzles, and specifically from its released clue file: 8.0 million answer-and-clue
+      usages across 46 publications. This page uses only the New York Times rows &mdash;
+      <b id="m-usages">2,457,203</b> usages of <b id="m-distinct">205,829</b> distinct
+      answers across 84 years &mdash; because the Times is the one publication in the corpus
+      with continuous coverage under a single editorial lineage, which is what makes 1993
+      legible at all.</p>
+      <p>Answers are compared as bare strings of A&ndash;Z, upper-cased, with punctuation
+      dropped, which is how the puzzle itself treats them: a grid does not distinguish
+      <span class="mono">E COLI</span> from <span class="mono">ECOLI</span>.</p>
+    </div>
+    <h3 style="margin-top:22px">What this does not show</h3>
+    <div class="prose">
+      <p><b>1942 to 1950 is Sundays only.</b> The corpus holds about 8,000 answers a year for
+      those years against 31,000 from 1951 on, because the Times published only a Sunday
+      puzzle until September 1950. Rates are unaffected &mdash; every figure here is a share
+      &mdash; but a raw count from the 1940s is a count of Sundays.</p>
+      <p><b>The corpus is not the paper.</b> It is a reconstruction, assembled from many
+      hands, and it is not complete. 1978 is short by a quarter; 2012 to 2014 carry more rows
+      than a year of puzzles contains. Shares absorb this; counts do not.</p>
+      <p><b>Editor years are approximate.</b> Handovers happened mid-year &mdash; Shortz's
+      first puzzle was 21 November 1993 &mdash; and the bands here are whole calendar years.
+      The 1993 column therefore contains puzzles edited by both Maleska and Shortz, which
+      makes the hinge slightly <em>less</em> sharp than the record, not more.</p>
+      <p><b>A trap worth naming.</b> The first version of this analysis tried to measure the
+      rise of abbreviations from the clues, by counting clues marked <span class="mono">:
+      Abbr.</span> or <span class="mono">for short</span>. It showed abbreviations collapsing
+      in the 1980s, which is false. Maleska flagged abbreviations by writing the clue itself
+      in abbreviated form &mdash; <span class="mono">Drivers' org.</span> &mdash; rather than
+      by appending a marker, so the marker count measures house style, not content. Nothing
+      on this page is derived from clue formatting. The one clue-shaped fact here is
+      independently visible: clues stopped ending in a full stop between 1967 and 1970,
+      going from 98% to 5%.</p>
+      <p><b>The English baseline has a floor.</b> Letter and vowel shares come from Norvig's
+      word counts over the Google Web Trillion Word Corpus, weighted by frequency. That list
+      stops at 333,333 words, and its tail is scanning noise, so it cannot say how rare
+      <span class="mono">ESNE</span> is &mdash; only what the letters of ordinary English look
+      like in bulk. No claim here depends on the tail.</p>
+      <p><b>Clues are quoted, not republished.</b> One clue is shown per featured word, dated,
+      as illustration. The full clue file belongs to the papers that printed it.</p>
+    </div>
+    <details class="src">
+      <summary>Sources</summary>
+      <div class="in">
+        <p><b>xd corpus</b> &mdash; clue archive (<span class="mono">xd-clues.zip</span>,
+        generated 28 April 2026) and puzzle metadata, Saul Pwanson / century-arcade.
+        <a href="https://xd.saul.pw/data">xd.saul.pw/data</a>. Tooling MIT; clue and answer
+        text remains the property of the publications that printed it.</p>
+        <p><b>ENABLE</b> &mdash; Enhanced North American Benchmark Lexicon, 172,823 words,
+        public domain, via <a href="https://github.com/dolph/dictionary">dolph/dictionary</a>.</p>
+        <p><b>Word counts</b> &mdash; Peter Norvig, <a href="https://norvig.com/ngrams/">ngrams</a>,
+        derived from the Google Web Trillion Word Corpus (588 billion tokens over 333,333
+        words). Free to use.</p>
+        <p><b>Editor dates</b> &mdash; the published record of the Times crossword:
+        Margaret Farrar 1942&ndash;1969, Will Weng 1969&ndash;1977, Eugene T. Maleska
+        1977&ndash;1993, Will Shortz from 21 November 1993.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<footer class="wrap" style="padding-left:0;padding-right:0">
+  <p>Built 27 September 2026. Code MIT; the data keeps its own licences, above.</p>
+</footer>
+
+</div>
+
+<script>
+const D = __DATA__;
+(function(){
+"use strict";
+const YRS = D.years, NY = YRS.length, Y0 = YRS[0];
+const ALPHA = D.alpha, AIDX = {};
+for (let i = 0; i < ALPHA.length; i++) AIDX[ALPHA[i]] = i;
+const dec = s => { const a = new Array(NY); for (let i = 0; i < NY; i++) a[i] = AIDX[s[i]] || 0; return a; };
+const NS = "http://www.w3.org/2000/svg";
+const el = (n, at, kids) => {
+  const e = document.createElementNS(NS, n);
+  for (const k in (at || {})) e.setAttribute(k, at[k]);
+  for (const c of (kids || [])) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  return e;
+};
+const fmt = n => n.toLocaleString("en-US");
+const ERAS = D.editors.map((e, i, a) => ({
+  name: e.name, short: e.name.split(" ").pop(),
+  from: e.from, to: i + 1 < a.length ? a[i + 1].from - 1 : YRS[NY - 1]
+}));
+const eraAt = y => ERAS.find(e => y >= e.from && y <= e.to) || ERAS[ERAS.length - 1];
+
+/* ── the motif: a strip of squares that swaps one word for another ───── */
+(function motif(){
+  const host = document.getElementById("motif");
+  if (!host) return;
+  const A = "ESNE", B = "EDU", pad = 2;
+  const cells = [];
+  const n = 9;
+  for (let i = 0; i < n; i++){
+    const d = document.createElement("div");
+    d.className = "sq" + (i === 4 ? " blk" : "");
+    if (i === 0 || i === 5) { d.className += " no"; d.dataset.n = i === 0 ? "1" : "2"; }
+    host.appendChild(d); cells.push(d);
+  }
+  const words = [["E","S","N","E"], ["E","D","U",""], ["O","L","E","O"], ["I","M","A","C"]];
+  let k = 0;
+  const paint = () => {
+    const w = words[k % words.length], v = words[(k + 1) % words.length];
+    for (let i = 0; i < 4; i++) cells[i].textContent = w[i] || "";
+    for (let i = 0; i < 4; i++) cells[5 + i].textContent = v[i] || "";
+    k++;
+  };
+  paint();
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(paint, 2600);
+})();
+
+/* ── a small per-year bar sparkline ──────────────────────────────────── */
+function spark(series, w, h, colour){
+  const mx = Math.max(1, ...series);
+  const bw = w / NY;
+  const s = el("svg", {viewBox: `0 0 ${w} ${h}`, width: w, height: h, role: "img"});
+  s.appendChild(el("rect", {x: 0, y: h - .6, width: w, height: .6, fill: "var(--rule)"}));
+  for (let i = 0; i < NY; i++){
+    if (!series[i]) continue;
+    const bh = Math.max(1, series[i] / mx * (h - 2));
+    s.appendChild(el("rect", {x: (i * bw).toFixed(2), y: (h - bh).toFixed(2),
+      width: Math.max(.9, bw - .35).toFixed(2), height: bh.toFixed(2), fill: colour}));
+  }
+  return s;
+}
+
+/* ── §01 the swap ────────────────────────────────────────────────────── */
+const SW = {mode: "both", ord: "n", all: false};
+const box = document.getElementById("sw-cards");
+function wordStrip(w){
+  const d = document.createElement("div");
+  d.className = "strip sm";
+  [...w].forEach((ch, i) => {
+    const c = document.createElement("div");
+    c.className = "sq" + (i === 0 ? " no" : "");
+    if (i === 0) c.dataset.n = "1";
+    c.textContent = ch;
+    d.appendChild(c);
+  });
+  return d;
+}
+/* A clue that already opens and closes on a quotation mark - the Times style
+   for a fill-in-the-blank or a spoken answer - is left as it is rather than
+   nested inside a second pair. */
+function quoted(c){
+  return /^["“][\s\S]*["”][?!.]?$/.test(c) ? c : "“" + c + "”";
+}
+function card(e, kind){
+  const d = document.createElement("div");
+  d.className = "wc " + (kind === "ret" ? "o" : "n");
+  const hd = document.createElement("div"); hd.className = "hd";
+  hd.appendChild(wordStrip(e.w));
+  const m = document.createElement("div"); m.className = "meta";
+  m.innerHTML = "<b>" + e.tot + "</b>" + e.f + "&ndash;" + e.l;
+  hd.appendChild(m); d.appendChild(hd);
+  const sp = document.createElement("div"); sp.className = "sp";
+  sp.appendChild(spark(dec(e.s), 208, 26, kind === "ret" ? "var(--old)" : "var(--new)"));
+  d.appendChild(sp);
+  if (e.q){
+    const q = document.createElement("div"); q.className = "q";
+    q.appendChild(document.createTextNode(quoted(e.q.c) + " "));
+    const sp2 = document.createElement("span"); sp2.textContent = e.q.y;
+    q.appendChild(sp2); d.appendChild(q);
+  }
+  return d;
+}
+function drawSwap(){
+  const lists = [];
+  if (SW.mode !== "inv") lists.push(["ret", D.retired]);
+  if (SW.mode !== "ret") lists.push(["inv", D.invented]);
+  const ord = {
+    n: (a, b) => b[1].tot - a[1].tot,
+    y: (a, b) => (a[0] === "ret" ? a[1].l : a[1].f) - (b[0] === "ret" ? b[1].l : b[1].f)
+                 || b[1].tot - a[1].tot,
+    a: (a, b) => a[1].w < b[1].w ? -1 : 1
+  }[SW.ord];
+  const sorted = lists.map(p => p[1].map(e => [p[0], e]).sort(ord));
+  /* With both lists showing, interleave them rather than concatenating: the
+     invented words are printed far more often than the retired ones, so a
+     single sort would bury every amber card below the fold and hide the
+     comparison the section exists to make. */
+  let items = [];
+  if (sorted.length === 1) items = sorted[0];
+  else {
+    const n = Math.max.apply(null, sorted.map(a => a.length));
+    for (let i = 0; i < n; i++) for (const a of sorted) if (i < a.length) items.push(a[i]);
+  }
+  const CAP = 24 * lists.length;
+  const shown = SW.all ? items : items.slice(0, CAP);
+  box.textContent = "";
+  for (const [k, e] of shown) box.appendChild(card(e, k));
+  const nr = D.retired.length, ni = D.invented.length;
+  document.getElementById("sw-sub").textContent =
+    (SW.mode === "ret" ? nr + " retired words" : SW.mode === "inv" ? ni + " invented words"
+      : nr + " retired and " + ni + " invented words") +
+    " · showing " + shown.length + " of " + items.length +
+    " · the number is every time the Times has printed it";
+  const more = document.getElementById("sw-more");
+  more.textContent = SW.all ? "Show fewer" : "Show all " + items.length;
+  more.hidden = items.length <= CAP;
+}
+document.querySelectorAll("[data-sw]").forEach(b => b.onclick = () => {
+  SW.mode = b.dataset.sw; SW.all = false;
+  document.querySelectorAll("[data-sw]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  drawSwap();
+});
+document.querySelectorAll("[data-ord]").forEach(b => b.onclick = () => {
+  SW.ord = b.dataset.ord;
+  document.querySelectorAll("[data-ord]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  drawSwap();
+});
+document.getElementById("sw-more").onclick = () => { SW.all = !SW.all; drawSwap(); };
+drawSwap();
+
+/* ── era bands, shared by the time charts ────────────────────────────── */
+function bands(g, x, h, showLabels){
+  ERAS.forEach((e, i) => {
+    const x0 = x(e.from), x1 = x(Math.min(e.to, YRS[NY - 1]) + 1);
+    if (i % 2) g.appendChild(el("rect", {x: x0, y: 0, width: x1 - x0, height: h,
+      fill: "var(--ink)", opacity: .035}));
+    if (showLabels)
+      g.appendChild(el("text", {x: x0 + 4, y: 11, fill: "var(--ink3)",
+        "font-size": 10.5, "font-family": "IBM Plex Mono, monospace"}, [e.short]));
+    if (i) g.appendChild(el("line", {x1: x0, y1: 0, x2: x0, y2: h,
+      stroke: "var(--ink3)", "stroke-width": 1, "stroke-dasharray": "3 3", opacity: .55}));
+  });
+}
+
+/* ── §02 the hinge ───────────────────────────────────────────────────── */
+(function hinge(){
+  const inv = D.hinge.inventedFirstHist, ret = D.hinge.retiredLastHist;
+  const tall = h => Math.max.apply(null, Object.keys(h).map(k => h[k]));
+  /* Size the canvas from the data. The busiest column is 1994, with 22 words
+     arriving at once, and a fixed height clipped it. */
+  const CH = 11, GAP = 16, AX = 34, TOP = 30;
+  const MID = TOP + tall(inv) * CH + GAP;
+  const W = 940, H = MID + GAP + tall(ret) * CH + AX + 14, L = 8, R = 8;
+  const s = el("svg", {viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
+    "aria-label": "Histogram of the year each invented word first appeared and each retired word last appeared"});
+  const iw = W - L - R, bw = iw / NY;
+  const x = y => L + (y - Y0) * bw;
+  bands(s, x, H - 34, false);
+  const draw = (hist, up, colour) => {
+    for (const k in hist){
+      const y = +k, n = hist[k];
+      for (let j = 0; j < n; j++){
+        const yy = up ? MID - 16 - (j + 1) * CH : MID + 16 + j * CH;
+        s.appendChild(el("rect", {x: (x(y) + .8).toFixed(2), y: yy.toFixed(2),
+          width: Math.max(1.6, bw - 1.6).toFixed(2), height: CH - 2, rx: 1, fill: colour}));
+      }
+    }
+  };
+  draw(inv, true, "var(--new)");
+  draw(ret, false, "var(--old)");
+  s.appendChild(el("line", {x1: L, y1: MID, x2: W - R, y2: MID, stroke: "var(--ink)",
+    "stroke-width": 1, opacity: .45}));
+  /* the handover */
+  const hx = x(1993) + bw / 2;
+  s.appendChild(el("line", {x1: hx, y1: 8, x2: hx, y2: H - 34, stroke: "var(--flag)",
+    "stroke-width": 1.5, "stroke-dasharray": "5 4"}));
+  s.appendChild(el("text", {x: hx - 8, y: 16, "text-anchor": "end", fill: "var(--flag)",
+    "font-size": 11.5, "font-weight": 600, "font-family": "IBM Plex Sans, sans-serif"},
+    ["Shortz's first puzzle, Nov 1993"]));
+  s.appendChild(el("text", {x: L + 4, y: MID - 5, fill: "var(--new)", "font-size": 12,
+    "font-weight": 600, "font-family": "IBM Plex Sans, sans-serif"},
+    ["↑ first year an invented word appeared  (" + D.invented.length + " words)"]));
+  s.appendChild(el("text", {x: L + 4, y: MID + 22, fill: "var(--old)", "font-size": 12,
+    "font-weight": 600, "font-family": "IBM Plex Sans, sans-serif"},
+    ["↓ last year a retired word appeared  (" + D.retired.length + " words)"]));
+  /* axis */
+  for (let y = 1950; y <= 2020; y += 10){
+    s.appendChild(el("line", {x1: x(y), y1: H - 34, x2: x(y), y2: H - 29,
+      stroke: "var(--ink3)", "stroke-width": 1}));
+    s.appendChild(el("text", {x: x(y), y: H - 16, "text-anchor": "middle", fill: "var(--ink3)",
+      "font-size": 11, "font-family": "IBM Plex Mono, monospace"}, [String(y)]));
+  }
+  ERAS.forEach(e => s.appendChild(el("text", {x: x(e.from) + 3, y: H - 3, fill: "var(--ink3)",
+    "font-size": 10, "font-family": "IBM Plex Mono, monospace"}, [e.short])));
+  document.getElementById("c-hinge").appendChild(s);
+})();
+
+/* ── §03 letters ─────────────────────────────────────────────────────── */
+const AZ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+let ERA = "Will Shortz";
+function corr(a, b){
+  const n = a.length, ma = a.reduce((x, y) => x + y) / n, mb = b.reduce((x, y) => x + y) / n;
+  let num = 0, da = 0, db = 0;
+  for (let i = 0; i < n; i++){ const u = a[i] - ma, v = b[i] - mb; num += u * v; da += u * u; db += v * v; }
+  return num / Math.sqrt(da * db);
+}
+function drawLetters(){
+  const host = document.getElementById("c-letters"); host.textContent = "";
+  const xw = D.letters.eras[ERA], en = D.letters.english;
+  const order = AZ.map((c, i) => i).sort((a, b) => en[b] - en[a]);
+  const W = 940, rowH = 22, H = order.length * rowH + 26, LAB = 26, VAL = 86;
+  const mx = Math.max(...xw, ...en) * 1.06;
+  const s = el("svg", {viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
+    "aria-label": "Letter frequency in crossword answers compared with English"});
+  const x0 = LAB + 8, x1 = W - VAL, sc = v => (v / mx) * (x1 - x0);
+  s.appendChild(el("text", {x: x0, y: 12, fill: "var(--ink3)", "font-size": 11,
+    "font-family": "IBM Plex Mono, monospace"}, ["share of all letters (%)"]));
+  order.forEach((i, r) => {
+    const y = 26 + r * rowH;
+    s.appendChild(el("text", {x: LAB, y: y + 12, "text-anchor": "end", fill: "var(--ink2)",
+      "font-size": 13, "font-weight": 600, "font-family": "IBM Plex Mono, monospace"}, [AZ[i]]));
+    s.appendChild(el("rect", {x: x0, y: y + 2, width: Math.max(.5, sc(xw[i])), height: rowH - 8,
+      rx: 2, fill: "var(--ink)", opacity: .82}));
+    const ex = x0 + sc(en[i]);
+    s.appendChild(el("line", {x1: ex, y1: y, x2: ex, y2: y + rowH - 4,
+      stroke: "var(--flag)", "stroke-width": 2}));
+    const d = xw[i] - en[i];
+    s.appendChild(el("text", {x: W - 6, y: y + 12, "text-anchor": "end",
+      fill: Math.abs(d) < .25 ? "var(--ink3)" : (d > 0 ? "var(--new)" : "var(--old)"),
+      "font-size": 12, "font-family": "IBM Plex Mono, monospace"},
+      [xw[i].toFixed(2) + "   " + (d >= 0 ? "+" : "−") + Math.abs(d).toFixed(2)]));
+  });
+  host.appendChild(s);
+  const rr = corr(xw, D.letters.eras["Margaret Farrar"]), re = corr(xw, en);
+  document.getElementById("cap-letters").innerHTML =
+    "Black bars, the " + ERA.split(" ").pop() + " era; red ticks, English. " +
+    "This era's letter mix matches <b>the Farrar era at r = " + rr.toFixed(4) +
+    "</b> and English at r = " + re.toFixed(3) + ". The puzzle's surplus is " +
+    "<b>A, S, E, O, L</b>; its deficit is <b>H, C, I, T, U</b> — the letters that are " +
+    "expensive to cross.";
+}
+(function eraBtns(){
+  const host = document.getElementById("era-btns");
+  ERAS.forEach(e => {
+    const b = document.createElement("button");
+    b.className = "seg"; b.textContent = e.short + " " + e.from + "–" + e.to;
+    b.setAttribute("aria-pressed", e.name === ERA);
+    b.onclick = () => {
+      ERA = e.name;
+      [...host.children].forEach(x => x.setAttribute("aria-pressed", x === b));
+      drawLetters();
+    };
+    host.appendChild(b);
+  });
+})();
+drawLetters();
+
+/* ── a shared line chart for the two per-year series ─────────────────── */
+function lineChart(host, series, opts){
+  const W = 940, H = 262, T = 18, B = 40, L = 46, R = 12;
+  const lo = opts.lo, hi = opts.hi;
+  const s = el("svg", {viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
+    "aria-label": opts.label});
+  const x = y => L + (y - Y0) / (NY - 1) * (W - L - R);
+  const yy = v => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  const g = el("g", {});
+  bands(g, x, H - B, false);
+  s.appendChild(g);
+  (opts.ticks || []).forEach(v => {
+    s.appendChild(el("line", {x1: L, y1: yy(v), x2: W - R, y2: yy(v),
+      stroke: "var(--rule)", "stroke-width": 1}));
+    s.appendChild(el("text", {x: L - 8, y: yy(v) + 4, "text-anchor": "end",
+      fill: "var(--ink3)", "font-size": 11, "font-family": "IBM Plex Mono, monospace"},
+      [v + (opts.unit || "")]));
+  });
+  if (opts.ref != null){
+    s.appendChild(el("line", {x1: L, y1: yy(opts.ref), x2: W - R, y2: yy(opts.ref),
+      stroke: "var(--flag)", "stroke-width": 1.5, "stroke-dasharray": "6 4"}));
+    s.appendChild(el("text", {x: W - R - 4, y: yy(opts.ref) - 7, "text-anchor": "end",
+      fill: "var(--flag)", "font-size": 11.5, "font-weight": 600,
+      "font-family": "IBM Plex Sans, sans-serif"}, [opts.refLabel]));
+  }
+  let d = "";
+  series.forEach((v, i) => { d += (i ? "L" : "M") + x(Y0 + i).toFixed(1) + " " + yy(v).toFixed(1); });
+  s.appendChild(el("path", {d: d, fill: "none", stroke: opts.colour || "var(--ink)",
+    "stroke-width": 2.2, "stroke-linejoin": "round"}));
+  for (let y = 1950; y <= 2020; y += 10)
+    s.appendChild(el("text", {x: x(y), y: H - 20, "text-anchor": "middle", fill: "var(--ink3)",
+      "font-size": 11, "font-family": "IBM Plex Mono, monospace"}, [String(y)]));
+  ERAS.forEach(e => s.appendChild(el("text", {x: x(e.from) + 3, y: H - 5, fill: "var(--ink3)",
+    "font-size": 10, "font-family": "IBM Plex Mono, monospace"}, [e.short])));
+  host.appendChild(s);
+}
+lineChart(document.getElementById("c-vowel"), D.vowel.series,
+  {lo: 35.6, hi: 44, ticks: [37, 39, 41, 43], unit: "%", ref: D.vowel.english,
+   refLabel: "English, " + D.vowel.english.toFixed(1) + "%",
+   label: "Vowel share of crossword answers by year, against English"});
+lineChart(document.getElementById("c-enable"), D.enable.series,
+  {lo: 50, hi: 73, ticks: [55, 60, 65, 70], unit: "%", colour: "var(--new)",
+   label: "Share of crossword answers that are ordinary English words, by year"});
+
+/* ── §05 lookup ──────────────────────────────────────────────────────── */
+const IDX = {};
+D.explorer.words.forEach((w, i) => IDX[w] = i);
+const RET = {}, INV = {};
+D.retired.forEach(e => RET[e.w] = e);
+D.invented.forEach(e => INV[e.w] = e);
+const out = document.getElementById("look-out");
+function lookup(raw){
+  const w = (raw || "").toUpperCase().replace(/[^A-Z]/g, "");
+  out.textContent = "";
+  if (!w){ out.innerHTML = '<p style="color:var(--ink3);font-size:15px">' +
+    'Try an old standby, or one of the words above.</p>'; return; }
+  const i = IDX[w];
+  const feat = RET[w] || INV[w];
+  if (i == null && !feat){
+    out.innerHTML = '<p class="miss"><b class="mono">' + w + '</b> is not among the 20,000 ' +
+      'most-used Times answers. It may still have appeared — ' + fmt(D.coverage.totalDistinct) +
+      ' distinct answers are in the corpus, but only those used ' + D.explorer.minUses +
+      ' times or more are shipped with this page.</p>';
+    return;
+  }
+  const ser = i != null ? dec(D.explorer.series[i]) : dec(feat.s);
+  const tot = ser.reduce((a, b) => a + b, 0);
+  let first = -1, last = -1, peak = 0, pk = 0;
+  ser.forEach((v, k) => { if (v){ if (first < 0) first = k; last = k; } if (v > peak){ peak = v; pk = k; } });
+  const st = document.createElement("div"); st.className = "lstat";
+  const add = (b, l) => { const d = document.createElement("div");
+    d.innerHTML = "<b>" + b + "</b>" + l; st.appendChild(d); };
+  add(fmt(tot), "times printed");
+  add(YRS[first], "first &mdash; " + eraAt(YRS[first]).short);
+  add(YRS[last], "last &mdash; " + eraAt(YRS[last]).short);
+  add(YRS[pk] + " ×" + peak, "busiest year");
+  if (i != null) add("#" + fmt(i + 1), "most-used rank");
+  const head = document.createElement("div");
+  head.style.cssText = "display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px";
+  const ws = document.createElement("div"); ws.className = "strip";
+  [...w].forEach((ch, k) => { const c = document.createElement("div");
+    c.className = "sq" + (k === 0 ? " no" : ""); if (!k) c.dataset.n = "1";
+    c.textContent = ch; ws.appendChild(c); });
+  head.appendChild(ws); head.appendChild(st);
+  out.appendChild(head);
+  if (feat){
+    const tag = document.createElement("p");
+    tag.style.cssText = "font-size:14.5px;margin-bottom:12px;color:" +
+      (RET[w] ? "var(--old)" : "var(--new)");
+    tag.innerHTML = "<b>" + (RET[w] ? "On the retired list." : "On the invented list.") + "</b> " +
+      (feat.q ? "“" + feat.q.c + "” (" + feat.q.y + ")" : "");
+    out.appendChild(tag);
+  }
+  const big = document.createElement("div"); big.className = "scrollx";
+  const colour = RET[w] ? "var(--old)" : INV[w] ? "var(--new)" : "var(--ink)";
+  const W = 940, H = 150, B = 34;
+  const s = el("svg", {viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
+    "aria-label": "Uses of " + w + " per year, 1942 to 2025"});
+  const bw = W / NY, mx = Math.max(1, ...ser);
+  bands(s, y => (y - Y0) * bw, H - B, false);
+  for (let k = 0; k < NY; k++){
+    if (!ser[k]) continue;
+    const bh = Math.max(1.5, ser[k] / mx * (H - B - 16));
+    s.appendChild(el("rect", {x: (k * bw + .6).toFixed(2), y: (H - B - bh).toFixed(2),
+      width: Math.max(1.4, bw - 1.2).toFixed(2), height: bh.toFixed(2), rx: 1, fill: colour}));
+  }
+  s.appendChild(el("line", {x1: 0, y1: H - B, x2: W, y2: H - B, stroke: "var(--ink3)",
+    "stroke-width": 1, opacity: .6}));
+  s.appendChild(el("text", {x: 2, y: 12, fill: "var(--ink3)", "font-size": 11,
+    "font-family": "IBM Plex Mono, monospace"}, ["peak " + mx + " a year"]));
+  for (let y = 1950; y <= 2020; y += 10)
+    s.appendChild(el("text", {x: (y - Y0) * bw, y: H - 18, "text-anchor": "middle",
+      fill: "var(--ink3)", "font-size": 11, "font-family": "IBM Plex Mono, monospace"},
+      [String(y)]));
+  ERAS.forEach(e => s.appendChild(el("text", {x: (e.from - Y0) * bw + 3, y: H - 3,
+    fill: "var(--ink3)", "font-size": 10, "font-family": "IBM Plex Mono, monospace"}, [e.short])));
+  big.appendChild(s); out.appendChild(big);
+}
+const CHIPS = ["ESNE", "OREO", "ETUI", "EDU", "ERIE", "SNL", "OLEO", "ENARE", "ACAI", "ANOA", "ELO", "ORE"];
+(function chips(){
+  const host = document.getElementById("chips");
+  CHIPS.forEach(w => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.textContent = w;
+    b.onclick = () => { document.getElementById("q").value = w; lookup(w); };
+    host.appendChild(b);
+  });
+})();
+document.getElementById("q").addEventListener("input", e => lookup(e.target.value));
+lookup("ESNE");
+
+/* ── numbers that must match the payload ─────────────────────────────── */
+document.getElementById("f-ret").textContent = D.retired.length;
+document.getElementById("f-inv").textContent = D.invented.length;
+document.getElementById("cov").textContent = D.explorer.covers + "%";
+document.getElementById("minu").textContent = D.explorer.minUses;
+document.getElementById("m-usages").textContent = fmt(D.coverage.totalUsages);
+document.getElementById("m-distinct").textContent = fmt(D.coverage.totalDistinct);
+document.querySelector(".eyebrow").innerHTML =
+  "The New York Times crossword &middot; 1942&ndash;2025 &middot; " +
+  fmt(D.coverage.totalUsages) + " answers";
+})();
+</script>
