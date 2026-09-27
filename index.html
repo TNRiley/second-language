@@ -190,7 +190,7 @@ footer a{color:var(--ink2)}
 <nav class="qp-crumb" aria-label="Breadcrumb">
   <a href="https://tnriley.github.io/quick-projects/">&larr;&nbsp;Quick Projects</a>
   <span class="qp-sep">/</span>
-  <span class="qp-here">Project</span>
+  <span class="qp-here">Second Language</span>
 </nav>
 <!-- /catalog-link -->
 <div class="wrap">
@@ -701,13 +701,19 @@ function drawLetters(){
       [xw[i].toFixed(2) + "   " + (d >= 0 ? "+" : "−") + Math.abs(d).toFixed(2)]));
   });
   host.appendChild(s);
-  const rr = corr(xw, D.letters.eras["Margaret Farrar"]), re = corr(xw, en);
+  /* Compare each era with the far end of the record rather than always with
+     Farrar, or selecting Farrar compares it with itself and prints r = 1. */
+  const REF = ERAS[ERA === ERAS[0].name ? ERAS.length - 1 : 0];
+  const rr = corr(xw, D.letters.eras[REF.name]), re = corr(xw, en);
+  const d = AZ.map((c, i) => [c, xw[i] - en[i]]).sort((a, b) => b[1] - a[1]);
+  const names = a => a.map(x => x[0]).join(", ");
   document.getElementById("cap-letters").innerHTML =
-    "Black bars, the " + ERA.split(" ").pop() + " era; red ticks, English. " +
-    "This era's letter mix matches <b>the Farrar era at r = " + rr.toFixed(4) +
-    "</b> and English at r = " + re.toFixed(3) + ". The puzzle's surplus is " +
-    "<b>A, S, E, O, L</b>; its deficit is <b>H, C, I, T, U</b> — the letters that are " +
-    "expensive to cross.";
+    "Bars, the " + ERA.split(" ").pop() + " era; red ticks, English. " +
+    "This era's letter mix matches <b>the " + REF.short + " era (" + REF.from +
+    "–" + REF.to + ") at r = " + rr.toFixed(4) +
+    "</b> and English at r = " + re.toFixed(3) + ". Its surplus over English is " +
+    "<b>" + names(d.slice(0, 5)) + "</b>; its deficit is <b>" +
+    names(d.slice(-5).reverse()) + "</b> — the letters that are expensive to cross.";
 }
 (function eraBtns(){
   const host = document.getElementById("era-btns");
